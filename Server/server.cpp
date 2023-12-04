@@ -5,12 +5,19 @@
 #include <cstring>
 #include <winsock2.h>
 #include <regex>
+#include "sqlite3.h"
+
 
 // Define the structure
-struct user_info {
-    char user_name[50];
-    char user_email[50];
-};
+typedef struct user_info {
+    int user_id;
+    char first_name[100];
+    char last_name[100];
+    char email[100];
+    char subscription_time[50];
+    char last_entry_time[50];
+    unsigned long view_time;
+} user_info;
 
 
 
@@ -40,12 +47,98 @@ bool searchTest(const std::string& email){
     }
     return false;
 }
-bool validateUserInfo(const user_info& user) {
+bool validateUserEmail(std::string email) {
 
-    bool haveTest = searchTest(user.user_email);
+    bool haveTest = searchTest(email);
     if(haveTest)
-        return isValidEmail(user.user_email);
+        return isValidEmail(email);
     return false;
+}
+
+//SQL part
+sqlite3* db;
+char* errMsg = 0;
+
+static int createDB(){
+    int rc = sqlite3_open("Users.db", &db);
+
+    if (rc) {
+        std::cerr << "Cannot open database: " << sqlite3_errmsg(db) << std::endl;
+        return rc;
+    }
+}
+
+static int createTable(){
+    const char* query = "CREATE TABLE IF NOT EXISTS UserInfo (\n"
+                        "    id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
+                        "    user_id INTEGER,\n"
+                        "    first_name VARCHAR(100),\n"
+                        "    last_name VARCHAR(100),\n"
+                        "    email VARCHAR(100),\n"
+                        "    subscription_time DATETIME,\n"
+                        "    last_entry_time DATETIME,\n"
+                        "    view_time INTEGER\n"
+                        ");";
+    int rc = sqlite3_exec(db, query, nullptr, nullptr, &errMsg);
+
+    if (rc != SQLITE_OK) {
+        std::cerr << "SQL error: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+        sqlite3_close(db);
+        return rc;
+    }
+
+//    std::cout << "Table created successfully." << std::endl;
+
+}
+
+static int insertData(user_info user){
+
+
+    if(validateUserEmail(user.email))
+    {// INSERT command
+        std::string insertSQL = "INSERT INTO UserInfo (user_id, first_name, last_name, email, subscription_time, last_entry_time, view_time) VALUES (" +
+                                std::to_string(user.user_id) + ", '" +
+                                user.first_name + "', '" +
+                                user.last_name + "', '" +
+                                user.email + "', '" +
+                                user.subscription_time + "', '" +
+                                user.last_entry_time + "', " +
+                                std::to_string(user.view_time) + ");";
+        int rc = sqlite3_exec(db, insertSQL.c_str(), 0, 0, &errMsg);
+
+        if (rc != SQLITE_OK) {
+            std::cerr << "SQL error: " << errMsg << std::endl;
+            sqlite3_free(errMsg);
+            sqlite3_close(db);
+            return rc;
+        }
+
+        std::cout << "Data inserted successfully." << std::endl;
+    }
+    else
+        std::cout << "Email: "<<user.email<<" is not Valid" << std::endl;
+
+}
+
+void showTitle(int count,  char **columns){
+    printf("There are %d column(s)\n", count);
+    for(int i=0; i<count; i++)
+        std::cout<<columns[i]<<"\t";
+    std::cout<<"\n";
+}
+bool columnTitle = false;
+static int displayData(void *unused, int count, char **data, char **columns){
+
+    if(!columnTitle){
+        showTitle(count, columns);
+        columnTitle = true;
+    }
+    for(int i=0; i<count; i++)
+        std::cout<<data[i]<<"\t";
+    printf("\n");
+
+    return 0;
 }
 
 int main() {
@@ -80,7 +173,7 @@ int main() {
     }
 
     std::cout << "Server is listening on port 2222...\n";
-
+    int count = 0;
     while (true) {
         user_info receivedUser;
         sockaddr_in clientAddr;
@@ -95,13 +188,29 @@ int main() {
             continue; // Continue listening for the next message
         }
 
-        // Validate the received user information
-        bool isValid = validateUserInfo(receivedUser);
+        bool dbCreated = false, tblCreated = false;
+        if(!dbCreated){
+            dbCreated = true;
+            createDB();
+        }
+        if(!tblCreated){
+            tblCreated = true;
+            createTable();
+        }
+        insertData(receivedUser);
 
-        // Print validation result
-        std::cout << "Received user from " << inet_ntoa(clientAddr.sin_addr) << ":" << ntohs(clientAddr.sin_port)
-                  << " - Name: " << receivedUser.user_name << ", Email: " << receivedUser.user_email
-                  << ", Validation: " << (isValid ? "Valid" : "Invalid") << "\n";
+        count++; // Limiting the infinite loop...
+        if(count>=10)
+            break;
+    }
+    const char* query = "SELECT * FROM userinfo;";
+    int rc = sqlite3_exec(db, query, displayData, nullptr, &errMsg);
+
+    if (rc != SQLITE_OK) {
+        std::cerr << "SQL error: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+        sqlite3_close(db);
+        return rc;
     }
 
     // Close the socket and clean up Winsock
