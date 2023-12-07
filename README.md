@@ -18,7 +18,7 @@ typedef struct user_info {
 I have used CLION IDE for this project. Some files and directories need to be adjusted to run the project. [MySQL](https://dev.mysql.com/downloads/installer/) and [MySQL server](https://dev.mysql.com/downloads/mysql/) need to be installed. I have used [XAMPP](https://www.apachefriends.org/download.html) as Local Server.
 
 1. **Server_Using_MySQL**
-   	 - Adding **#pragma comment(lib, "ws2_32.lib")** in Server_Using_MySQL.cpp in case of using Visual C++. or Manually Linking **"ws2_32.lib"**  file for other IDEs.
+   	 - Adding **#pragma comment(lib, "ws2_32.lib")** in serverMysql.cpp in case of using Visual C++. or Manually Linking **"ws2_32.lib"**  file for other IDEs.
   	 - Updating the directories of the following in **CMakeLists.txt** file...
 	  	include_directories("path/to/MySQL Server/include/")
 		include_directories("path/to/MySQL Server/include/mysql")
