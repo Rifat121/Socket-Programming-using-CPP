@@ -1,5 +1,5 @@
 # Socket-Programming-using-CPP
-I was given a task of socket programming. I have a structure as follows:
+I was given the task of socket programming. I have a structure as follows:
 typedef struct user_info {
 		int user_id;
 		char first_name[100];
@@ -10,15 +10,15 @@ typedef struct user_info {
 		unsigned long view_time;
 	} user_info;
 
- Now, First Task is to send multiple instances of user as user_info to a server at PORT= 2222;
+ Now, the First Task is to send multiple instances of the user as user_info to a server at PORT= 2222;
  Then, A SERVER at that port will listen and receive the data given by the Client.
- After this, SERVER will save that info in a Database only if Given User Email is Valid and contains "test" as substring.
+ After this, SERVER will save that info in a Database only if the Given User Email is Valid and contains "test" as a substring.
 
 # Instructions to Run:
 I have used CLION IDE for this project. Some files and directories need to be adjusted to run the project. These are-
 
 1. **Server_Using_MySQL**
-   	-Adding **#pragma comment(lib, "ws2_32.lib")** in Server_Using_MySQL.cpp in case of using Visual C++. or Manually Linking **"ws2_32.lib"**  file for other IDEs.
+   	 - Adding **#pragma comment(lib, "ws2_32.lib")** in Server_Using_MySQL.cpp in case of using Visual C++. or Manually Linking **"ws2_32.lib"**  file for other IDEs.
   	 - Updating the directories of the following in **CMakeLists.txt** file...
 	  	include_directories("path/to/MySQL Server/include/")
 		include_directories("path/to/MySQL Server/include/mysql")
