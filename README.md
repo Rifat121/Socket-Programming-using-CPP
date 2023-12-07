@@ -13,3 +13,18 @@ typedef struct user_info {
  Now, First Task is to send multiple instances of user as user_info to a server at PORT= 2222;
  Then, A SERVER at that port will listen and receive the data given by the Client.
  After this, SERVER will save that info in a Database only if Given User Email is Valid and contains "test" as substring.
+
+# Instructions to Run:
+I have used CLION IDE for this project. Some files and directories need to be adjusted to run the project. These are-
+
+1. **Server_Using_MySQL**
+   	-Adding **#pragma comment(lib, "ws2_32.lib")** in Server_Using_MySQL.cpp in case of using Visual C++. or Manually Linking **"ws2_32.lib"**  file for other IDEs.
+  	 - Updating the directories of the following in **CMakeLists.txt** file...
+	  	include_directories("path/to/MySQL Server/include/")
+		include_directories("path/to/MySQL Server/include/mysql")
+		link_directories("path/to/MySQL Server/lib")
+	- Updating Database Connection Parameters in **dbOperation.cpp** as follows
+		mysql_real_connect(conn, "Host_Name", "User", "Password", "Database_Name"...)
+
+2. **Client**
+   	-Adding **#pragma comment(lib, "ws2_32.lib")** in Client.cpp in case of using Visual C++. or Manually Linking **"ws2_32.lib"**  file for other IDEs.
