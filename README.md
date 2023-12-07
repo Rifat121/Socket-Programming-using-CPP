@@ -27,4 +27,4 @@ I have used CLION IDE for this project. Some files and directories need to be ad
 		mysql_real_connect(conn, "Host_Name", "User", "Password", "Database_Name"...)
 
 2. **Client**
-   	-Adding **#pragma comment(lib, "ws2_32.lib")** in Client.cpp in case of using Visual C++. or Manually Linking **"ws2_32.lib"**  file for other IDEs.
+   	- Adding **#pragma comment(lib, "ws2_32.lib")** in Client.cpp in case of using Visual C++. or Manually Linking **"ws2_32.lib"**  file for other IDEs.
